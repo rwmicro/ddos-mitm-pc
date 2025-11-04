@@ -5,7 +5,7 @@ Ce module contient la classe WASPStormGUI qui gère l'affichage
 de l'interface utilisateur.
 """
 
-from tkinter import Tk, Canvas, Entry, Button, PhotoImage, Radiobutton, StringVar
+from tkinter import Tk, Canvas, Entry, Button, PhotoImage, Radiobutton, StringVar, Text, Scrollbar, END
 from typing import Optional
 
 from .utils import relative_to_assets
@@ -46,7 +46,7 @@ class WASPStormGUI:
         self._create_entries()
         self._create_radiobuttons()
         self._create_buttons()
-        self._create_text_elements()
+        self._create_log_widget()
     
     def _create_canvas(self):
         """Crée le canvas principal"""
@@ -107,9 +107,6 @@ class WASPStormGUI:
         self.images['logo'] = PhotoImage(file=relative_to_assets("image_13.png"))
         self.canvas.create_image(135.0, 48.0, image=self.images['logo'])
         
-        self.images['graph_1'] = PhotoImage(file=relative_to_assets("image_14.png"))
-        self.canvas.create_image(657.0, 598.0, image=self.images['graph_1'])
-        
         self.images['graph_2'] = PhotoImage(file=relative_to_assets("image_15.png"))
         self.canvas.create_image(723.0, 392.0, image=self.images['graph_2'])
         
@@ -117,26 +114,14 @@ class WASPStormGUI:
         self.images['metric_1'] = PhotoImage(file=relative_to_assets("image_16.png"))
         self.canvas.create_image(742.0, 448.0, image=self.images['metric_1'])
         
-        self.images['metric_2'] = PhotoImage(file=relative_to_assets("image_17.png"))
-        self.canvas.create_image(700.0, 448.0, image=self.images['metric_2'])
-        
         self.images['metric_3'] = PhotoImage(file=relative_to_assets("image_18.png"))
         self.canvas.create_image(574.0, 448.0, image=self.images['metric_3'])
-        
-        self.images['metric_4'] = PhotoImage(file=relative_to_assets("image_19.png"))
-        self.canvas.create_image(529.0, 448.0, image=self.images['metric_4'])
         
         self.images['metric_5'] = PhotoImage(file=relative_to_assets("image_20.png"))
         self.canvas.create_image(911.0, 448.0, image=self.images['metric_5'])
         
-        self.images['metric_6'] = PhotoImage(file=relative_to_assets("image_21.png"))
-        self.canvas.create_image(864.0, 448.0, image=self.images['metric_6'])
-        
         self.images['metric_7'] = PhotoImage(file=relative_to_assets("image_22.png"))
         self.canvas.create_image(405.0, 448.0, image=self.images['metric_7'])
-        
-        self.images['metric_8'] = PhotoImage(file=relative_to_assets("image_23.png"))
-        self.canvas.create_image(360.0, 448.0, image=self.images['metric_8'])
         
         self.images['decoration_1'] = PhotoImage(file=relative_to_assets("image_24.png"))
         self.canvas.create_image(152.0, 411.0, image=self.images['decoration_1'])
@@ -171,6 +156,7 @@ class WASPStormGUI:
             fg="#000716",
             highlightthickness=0
         )
+        self.entries['field_1'].insert(0, "localhost") 
         self.entries['field_1'].place(x=52.0, y=84.72262573242188, width=306.0, height=33.01459884643555)
         
         # Entry 2 - Deuxième champ
@@ -183,6 +169,7 @@ class WASPStormGUI:
             fg="#000716",
             highlightthickness=0
         )
+        self.entries['field_2'].insert(0, "80") 
         self.entries['field_2'].place(x=515.0, y=84.72262573242188, width=306.0, height=33.01459884643555)
         
         # Entry 3 - Troisième champ
@@ -195,6 +182,7 @@ class WASPStormGUI:
             fg="#000716",
             highlightthickness=0
         )
+        self.entries['field_3'].insert(0, "10") 
         self.entries['field_3'].place(x=52.0, y=169.11679077148438, width=306.0, height=33.01459884643555)
         
         # Entry 4 - Petit champ 1
@@ -207,6 +195,7 @@ class WASPStormGUI:
             fg="#000716",
             highlightthickness=0
         )
+        self.entries['field_4'].insert(0, "5")  # Valeur par défaut pour les threads
         self.entries['field_4'].place(x=53.624755859375, y=239.0, width=26.85828399658203, height=30.0)
         
         # Entry 5 - Petit champ 2
@@ -306,40 +295,55 @@ class WASPStormGUI:
         )
         self.buttons['start'].place(x=30.0, y=389.0, width=96.0, height=74.0)
     
-    def _create_text_elements(self) -> None:
-        """Crée tous les éléments de texte (séparateurs, labels, etc.)."""
-        # Séparateurs de métriques
+    def _create_log_widget(self) -> None:
+        """Crée le widget de logs pour afficher les messages du stress test."""
+        # Titre de la zone de logs
         self.canvas.create_text(
-            761.0, 438.0,
+            350.0, 490.0,
             anchor="nw",
-            text="/",
-            fill="#0021F5",
-            font=("Montserrat SemiBold", 20)
+            text="Logs du test",
+            fill="#ffffff",
+            font=("Montserrat SemiBold", 14)
         )
 
-        self.canvas.create_text(
-            593.0, 438.0,
-            anchor="nw",
-            text="/",
-            fill="#F44336",
-            font=("Montserrat SemiBold", 20)
+        # Créer le widget Text pour les logs
+        self.log_text = Text(
+            self.window,
+            bg="#F5F5F5",  # Fond gris très clair pour meilleure lisibilité
+            fg="#000000",
+            font=("Courier", 10),  # Augmentation de la taille de police
+            wrap="word",
+            bd=2,
+            relief="solid",
+            state="normal",  # Commence en mode normal
+            insertbackground="#000000",  # Couleur du curseur
+            highlightthickness=1,
+            highlightbackground="#CCCCCC",
+            highlightcolor="#0066CC"
         )
+        self.log_text.place(x=350.0, y=520.0, width=620.0, height=160.0)
 
-        self.canvas.create_text(
-            930.0, 438.0,
-            anchor="nw",
-            text="/",
-            fill="#000000",
-            font=("Montserrat SemiBold", 20)
-        )
 
-        self.canvas.create_text(
-            424.0, 438.0,
-            anchor="nw",
-            text="/",
-            fill="#199E58",
-            font=("Montserrat SemiBold", 20)
+        # Créer une scrollbar pour les logs
+        self.log_scrollbar = Scrollbar(
+            self.window,
+            command=self.log_text.yview,
+            bg="#E0E0E0",
+            troughcolor="#F5F5F5"
         )
+        self.log_scrollbar.place(x=970.0, y=520.0, height=160.0)
+
+        # Lier la scrollbar au widget Text
+        self.log_text.config(yscrollcommand=self.log_scrollbar.set)
+
+        # Configurer les tags de couleur pour différents types de messages
+        # avec des couleurs plus vives et lisibles
+        self.log_text.tag_config("INFO", foreground="#0066CC", font=("Courier", 10))
+        self.log_text.tag_config("SUCCESS", foreground="#008000", font=("Courier", 10, "bold"))
+        self.log_text.tag_config("ERROR", foreground="#CC0000", font=("Courier", 10, "bold"))
+        self.log_text.tag_config("WARNING", foreground="#FF6600", font=("Courier", 10))
+        self.log_text.tag_config("DEBUG", foreground="#555555", font=("Courier", 9))
+        self.log_text.tag_config("STATS", foreground="#9900CC", font=("Courier", 10, "bold"))
 
     # Méthodes publiques pour accéder aux widgets
     def get_entry_value(self, field_name: str) -> str:
@@ -416,6 +420,104 @@ class WASPStormGUI:
             )
 
         print("[DEBUG] Event handler successfully bound to GUI")
+
+    def update_metrics_display(self, metrics: dict) -> None:
+        """
+        Met à jour l'affichage des métriques sur l'interface.
+
+        Args:
+            metrics: Dictionnaire contenant les métriques du test
+        """
+        # Créer ou mettre à jour les objets texte pour les métriques
+        if not hasattr(self, 'metric_texts'):
+            self.metric_texts = {}
+
+        # Positions approximatives pour l'affichage des métriques
+        metric_positions = {
+            'success_count': (400, 445),
+            'error_count': (560, 445),
+            'total_attempts': (911, 430),
+            'success_rate': (740, 445),
+            'status': (911, 460),
+        }
+
+        # --- Calcul automatique du taux de succès ---
+        if 'success_count' in metrics and 'total_attempts' in metrics:
+            total = metrics['total_attempts']
+            success = metrics['success_count']
+            metrics['success_rate'] = (success / total * 100) if total > 0 else 0.0
+
+        # --- Mettre à jour l'affichage ---
+        for key, (x, y) in metric_positions.items():
+            if key in metrics:
+                value = metrics[key]
+
+                # Formater la valeur selon le type
+                if key == 'success_rate':
+                    text = f"{value:.1f}%"
+                elif key == 'status':
+                    text = str(value).split('.')[-1] if hasattr(value, 'value') else str(value)
+                else:
+                    text = str(value)
+
+                # Créer ou mettre à jour le texte
+                if key not in self.metric_texts:
+                    self.metric_texts[key] = self.canvas.create_text(
+                        x, y,
+                        anchor="center",
+                        text=text,
+                        fill="#000000",
+                        font=("Montserrat Bold", 14)
+                    )
+                else:
+                    self.canvas.itemconfig(self.metric_texts[key], text=text)
+
+
+    def add_log(self, message: str, level: str = "INFO") -> None:
+        """
+        Ajoute un message dans la zone de logs.
+
+        Args:
+            message: Message à afficher
+            level: Niveau du log (INFO, SUCCESS, ERROR, WARNING, DEBUG, STATS)
+        """
+        if not hasattr(self, 'log_text'):
+            return
+
+        # Activer l'édition temporairement
+        self.log_text.config(state="normal")
+
+        # Ajouter l'horodatage
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%H:%M:%S")
+
+        # Insérer le message avec le tag de couleur approprié
+        self.log_text.insert(END, f"[{timestamp}] ", "DEBUG")
+        self.log_text.insert(END, f"{message}\n", level)
+
+        # Auto-scroll vers le bas
+        self.log_text.see(END)
+
+        # Limiter le nombre de lignes (garder les 1000 dernières)
+        lines = int(self.log_text.index('end-1c').split('.')[0])
+        if lines > 1000:
+            self.log_text.delete('1.0', f'{lines-1000}.0')
+
+        # Remettre en lecture seule avec fond visible
+        self.log_text.config(
+            state="disabled",
+            bg="#F5F5F5",  # Forcer le fond à rester visible
+            fg="#000000"   # Forcer le texte à rester noir
+        )
+
+    def clear_logs(self) -> None:
+        """Efface tous les logs de la zone de logs."""
+        if not hasattr(self, 'log_text'):
+            return
+
+        self.log_text.config(state="normal")
+        self.log_text.delete('1.0', END)
+        self.log_text.config(state="disabled")
 
     def run(self) -> None:
         """Lance la boucle principale de l'interface graphique."""

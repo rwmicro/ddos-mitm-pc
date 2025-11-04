@@ -100,9 +100,59 @@ def validate_url(url: str) -> bool:
     """
     if not url:
         return False
-    
+
     valid_schemes = ('http://', 'https://')
     return any(url.lower().startswith(scheme) for scheme in valid_schemes)
+
+
+def validate_hostname(hostname: str) -> bool:
+    """
+    Valide un nom d'hôte (hostname) ou nom de domaine.
+
+    Args:
+        hostname: Nom d'hôte à valider
+
+    Returns:
+        True si le hostname est valide, False sinon
+
+    Example:
+        >>> validate_hostname("example.com")
+        True
+        >>> validate_hostname("sub.example.com")
+        True
+        >>> validate_hostname("localhost")
+        True
+        >>> validate_hostname("invalid..hostname")
+        False
+    """
+    if not hostname or len(hostname) > 253:
+        return False
+
+    # Supprimer le port si présent
+    if ':' in hostname:
+        hostname = hostname.split(':')[0]
+
+    # Un hostname peut contenir des lettres, chiffres, tirets et points
+    # Chaque label (partie entre les points) doit:
+    # - avoir entre 1 et 63 caractères
+    # - commencer et finir par une lettre ou un chiffre
+    # - peut contenir des tirets au milieu
+
+    labels = hostname.split('.')
+    if not labels:
+        return False
+
+    for label in labels:
+        if not label or len(label) > 63:
+            return False
+        # Vérifier que le label ne commence/finit pas par un tiret
+        if label.startswith('-') or label.endswith('-'):
+            return False
+        # Vérifier que le label contient uniquement des caractères valides
+        if not all(c.isalnum() or c == '-' for c in label):
+            return False
+
+    return True
 
 
 def format_number(number: int) -> str:
